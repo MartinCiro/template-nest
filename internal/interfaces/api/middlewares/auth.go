@@ -45,8 +45,8 @@ func (am *AuthMiddleware) Handler(next http.Handler) http.Handler {
 				user, err = am.authService.ValidateCookie(cookie.Value)
 				if err == nil && user != nil {
 					// Agregar usuario al contexto
-					ctx = context.WithValue(ctx, "user", user)
-					ctx = context.WithValue(ctx, "userID", user.ID)
+					ctx = context.WithValue(ctx, UserKey, user)
+					ctx = context.WithValue(ctx, UserIDKey, user.ID)
 
 					// Continuar con el siguiente handler
 					next.ServeHTTP(w, r.WithContext(ctx))

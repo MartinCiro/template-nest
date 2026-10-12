@@ -66,7 +66,7 @@ func (m *RefreshMiddleware) Handler(next http.Handler) http.Handler {
 
 // getUserIDFromContext extrae el userID del contexto
 func (m *RefreshMiddleware) getUserIDFromContext(ctx context.Context) int {
-	if userIDVal := ctx.Value("userID"); userIDVal != nil {
+	if userIDVal := ctx.Value(UserIDKey); userIDVal != nil {
 		switch v := userIDVal.(type) {
 		case int:
 			return v

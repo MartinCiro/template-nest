@@ -45,7 +45,7 @@ func (pm *PermissionsMiddleware) Handler(requiredPermissions []string) func(http
 			}
 
 			// Obtener usuario del contexto (seteado por AuthMiddleware)
-			user, ok := r.Context().Value("user").(*auth.User)
+			user, ok := r.Context().Value(UserKey).(*auth.User)
 			if !ok || user == nil {
 				logger.Warn("intento de acceso sin usuario en contexto")
 				response := common.NewErrorResponse(401, "No autenticado")
