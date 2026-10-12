@@ -10,7 +10,6 @@ import (
 	"api_go/internal/core/auth"
 	"api_go/internal/infrastructure/jwt"
 	"api_go/internal/infrastructure/redis"
-	"api_go/pkg/logger"
 	"api_go/pkg/utils"
 )
 
@@ -68,7 +67,6 @@ func (s *LoginService) Execute(ctx context.Context, credentials LoginCredentials
 	}
 
 	// 2. Verificar contraseña
-	logger.Info("Antes de compare", credentials.Password)
 	passwordMatch := s.passwordService.ComparePasswords(credentials.Password, user.PasswordHash)
 
 	if !passwordMatch {

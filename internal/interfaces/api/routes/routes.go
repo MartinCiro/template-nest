@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"strings"
 
 	"api_go/config"
 	"api_go/internal/app"
@@ -273,34 +274,53 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 
 // withGlobalMiddleware aplica middlewares globales
 func withGlobalMiddleware(handler http.Handler, cfg *config.Config) http.Handler {
-	// CORS - importante para cookies
-	handler = withCORS(handler)
-
+	// ✅ CORS: ahora pasamos la configuración
+	handler = withCORS(handler, cfg)
 	// Logging
 	handler = withLogging(handler, cfg)
-
 	// Recovery (manejo de panics)
 	handler = withRecovery(handler)
-
 	return handler
 }
 
 // withCORS middleware para CORS (actualizado para cookies)
-func withCORS(next http.Handler) http.Handler {
+func withCORS(next http.Handler, cfg *config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		if origin == "" {
-			origin = "*"
+
+		// Si no hay origen, es una petición same-origin o de herramienta como curl/postman
+		if origin != "" {
+			isAllowed := false
+			
+			for _, allowed := range cfg.CORSAllowedOrigins {
+				// Coincidencia exacta
+				if allowed == origin {
+					isAllowed = true
+					break
+				}
+				
+				// Soporte seguro para *.trycloudflare.com
+				if strings.HasSuffix(allowed, "trycloudflare.com") && strings.HasSuffix(origin, "trycloudflare.com") {
+					isAllowed = true
+					break
+				}
+			}
+
+			if isAllowed {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
+				w.Header().Set("Access-Control-Expose-Headers", "Set-Cookie")
+			}
 		}
 
-		w.Header().Set("Access-Control-Allow-Origin", origin)
+		// Headers comunes (seguros de enviar siempre)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, jwt, X-Requested-With")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")    // IMPORTANTE para cookies
-		w.Header().Set("Access-Control-Expose-Headers", "Set-Cookie") // Para que el frontend vea las cookies
+		w.Header().Set("Access-Control-Max-Age", "86400") // Cache preflight por 24h
 
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
+		// Responder preflight
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 
