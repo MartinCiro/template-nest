@@ -9,6 +9,8 @@ import (
 	"api_go/internal/core/permisos"
 	"api_go/internal/core/roles"
 	"api_go/internal/core/usuarios"
+	"api_go/internal/core/profile"
+	"api_go/internal/core/registration"
 	"api_go/internal/infrastructure/adapters"
 	"api_go/internal/infrastructure/cookies"
 	"api_go/internal/infrastructure/database"
@@ -28,8 +30,6 @@ import (
 type App struct {
 	// Configuración
 	Config *config.Config
-
-	// Infraestructura
 	DB           *gorm.DB
 	RedisCache   *redis.Cache
 	JWTService   *jwt.JWTService
@@ -44,8 +44,10 @@ type App struct {
 
 	// Servicios de Utilidad
 	PasswordService *utils.PasswordService
+	LoginService    *login.LoginService
 
-	LoginService *login.LoginService
+	ProfileService      *profile.ProfileService
+	RegistrationService *registration.RegistrationService
 }
 
 func NewApp() *App {
@@ -158,33 +160,35 @@ func (a *App) initializeCookieSigner() *cookies.CookieSigner {
 func (a *App) initializeServices() error {
 	// Inicializar servicios de utilidad
 	a.PasswordService = utils.NewPasswordService(a.Config.JWTSalt)
-
+	
+	
 	// Inicializar DB Manager corregido
 	dbManager := database.NewDBManager(a.DB)
-
+	
 	// Inicializar repositorios separados
 	usuarioRepo := repositories.NewUsuarioRepository(dbManager)
 	rolRepo := repositories.NewRolRepository(dbManager)
 	permisoRepo := repositories.NewPermisoRepository(dbManager)
 	estadoRepo := repositories.NewEstadoRepository(dbManager)
-
+	
 	// ✅ INICIALIZAR ESTADOS ADAPTER Y SERVICE
 	estadosAdapter := adapters.NewEstadosAdapter(a.DB, a.RedisCache)
 	a.EstadoService = estados.NewEstadoService(estadosAdapter)
-
+	
 	// ✅ INICIALIZAR PERMISOS ADAPTER Y SERVICE
 	permisosAdapter := adapters.NewPermisosAdapter(a.DB, a.RedisCache)
 	a.PermisoService = permisos.NewPermisoService(permisosAdapter)
-
+	
 	// ✅ INICIALIZAR ROLES ADAPTER Y SERVICE
 	rolesAdapter := adapters.NewRolesAdapter(a.DB, a.RedisCache)
 	a.RolService = roles.NewRolService(rolesAdapter)
-
+	
 	usuariosAdapter := adapters.NewUsuariosAdapter(a.DB, a.RedisCache)
 	a.UsuarioService = usuarios.NewUsuarioService(usuariosAdapter)
-
+	
 	// AuthAdapter coordina los repositorios
 	authAdapter := repositories.NewAuthAdapter(usuarioRepo, rolRepo, permisoRepo)
+	a.ProfileService = profile.NewProfileService(authAdapter, a.RedisCache)
 
 	// Inicializar servicios del core
 	a.AuthService = auth.NewAuthService(
@@ -204,6 +208,16 @@ func (a *App) initializeServices() error {
 		a.RedisCache,
 		a.PasswordService,
 		a.Config,
+	)
+
+	a.RegistrationService = registration.NewRegistrationService(
+		authAdapter,
+		usuarioRepo,
+		rolRepo,
+		estadoRepo,
+		a.CookieSigner,
+		a.PasswordService,
+		a.Config.JWTExpireTime,
 	)
 
 	logger.Info("✅ Todos los servicios del core inicializados correctamente",
