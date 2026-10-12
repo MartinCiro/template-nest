@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -35,6 +36,9 @@ type Config struct {
 	RedisURL      string
 	RedisPort     string
 	RedisPassword string
+
+	// CORS
+	CORSAllowedOrigins []string
 }
 
 // Load carga la configuración desde variables de entorno
@@ -48,8 +52,8 @@ func Load() *Config {
 	// Construir Redis URL si no está definida completamente
 	redisURL := getEnv("REDIS_URL", "")
 	if redisURL == "" {
-		// Construir URL desde componentes
-		redisHost := getEnv("REDIS_URL", "localhost")
+		// Construir URL desde componentes (CORREGIDO)
+		redisHost := getEnv("REDIS_HOST", "redis") // ← Cambiado a REDIS_HOST, default 'redis' (nombre del servicio)
 		redisPort := getEnv("REDIS_PORT", "6379")
 		redisPassword := getEnv("REDIS_PASSWORD", "")
 
@@ -57,6 +61,26 @@ func Load() *Config {
 			redisURL = fmt.Sprintf("redis://:%s@%s:%s", redisPassword, redisHost, redisPort)
 		} else {
 			redisURL = fmt.Sprintf("redis://%s:%s", redisHost, redisPort)
+		}
+	}
+
+	corsOriginsStr := getEnv("CORS_ALLOWED_ORIGINS", "")
+	var corsOrigins []string
+	if corsOriginsStr != "" {
+		// Separar por comas y limpiar espacios
+		for _, origin := range strings.Split(corsOriginsStr, ",") {
+			corsOrigins = append(corsOrigins, strings.TrimSpace(origin))
+		}
+	} else {
+		// Valores por defecto seguros si no se define la variable de entorno
+		corsOrigins = []string{
+			"http://localhost:3000",
+			"http://localhost:8080",
+			"http://127.0.0.1:3000",
+			"https://mrciro.com",
+			"https://www.mrciro.com",
+			"https://api.mrciro.com",
+			"trycloudflare.com",
 		}
 	}
 
@@ -87,6 +111,9 @@ func Load() *Config {
 		RedisURL:      redisURL,
 		RedisPort:     getEnv("REDIS_PORT", "6379"),
 		RedisPassword: getEnv("REDIS_PASSWORD", ""),
+
+		// CORS
+		CORSAllowedOrigins: corsOrigins,
 	}
 }
 

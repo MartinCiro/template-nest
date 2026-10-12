@@ -1,30 +1,29 @@
 services:
-  app_backend:
+  go_backend:
     build: .
     container_name: go_backend
     restart: always
     depends_on:
       - redis
       - postgres
-    ports:
-      - "8080:8080"
+    expose: 
+      - "8080"
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=${USER_DB:-postgres} 
-      - DB_PASSWORD=${PASS_DB:-password}
-      - DB_NAME=${NAME_DB}
-      - REDIS_HOST=redis
+      - HOST_DB=postgres
+      - PORT_DB=5432
+      - USER_DB=${USER_DB:-postgres}
+      - PASS_DB=${PASS_DB:-password}
+      - NAME_DB=${NAME_DB:-myapp}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-}@redis:6379/0
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-}
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-}@redis:6379/0
-      - JWT_SECRET=${JWT_SECRETO}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
-      - JWT_SALT=${JWT_SALT}
-      - ENV=${ENV:-development}
+      - JWT_SECRETO=${JWT_SECRETO}
+      - JWT_SALT=${JWT_SALT:-10}
+      - ENV=${ENV:-Production}
       - PORT=8080
     networks:
-      - docker_app_network
+      - app_internal
+      - proxy_net
 
   redis:
     image: redis:latest
@@ -41,9 +40,9 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - docker_app_network
-    ports:
-      - ${REDIS_PORT}:6379
+      - app_internal
+    expose: 
+      - "6379"
     command: >
       sh -c "
       if [ -n \"$$REDIS_PASSWORD\" ]; then
@@ -57,21 +56,21 @@ services:
     container_name: postgres-service-1
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${USER_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${USER_DB:-postgres}"]
       interval: 5s
       timeout: 3s
       retries: 3
       start_period: 10s
     environment:
-      POSTGRES_USER: ${USER_DB}
-      POSTGRES_PASSWORD: ${PASS_DB}
-      POSTGRES_DB: ${NAME_DB}
+      POSTGRES_USER: ${USER_DB:-postgres}
+      POSTGRES_PASSWORD: ${PASS_DB:-password}
+      POSTGRES_DB: ${NAME_DB:-myapp}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - docker_app_network
-    ports:
-      - "5433:5432"
+      - app_internal
+    expose: 
+      - "5432"
 
 volumes:
   redis_data:
@@ -80,5 +79,8 @@ volumes:
     driver: local
 
 networks:
-  docker_app_network:
+  proxy_net:
+    external: true
+
+  app_internal:
     driver: bridge
