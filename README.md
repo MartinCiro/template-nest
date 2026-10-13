@@ -49,19 +49,16 @@ template-nest/
 ## 🔄 Flujo de Datos (Arquitectura Hexagonal)
 
 ```mermaid
-[Cliente HTTP] 
-      ↓
-[Routes & Middlewares] (CORS → Auth → Refresh → Permissions)
-      ↓
-[Handlers] (Validación de DTOs, adaptación HTTP → Dominio)
-      ↓
-[Core Services] (Lógica de negocio pura: Auth, Profile, Registration, Session)
-      ↓
-[Ports] (Interfaces definidas por el dominio)
-      ↓
-[Adapters/Repositories] (Implementación concreta: GORM/DBManager, Redis)
-      ↓
-[PostgreSQL / Redis]
+flowchart TD
+    A["Cliente HTTP"]
+    B["Routes &amp; Middlewares<br/>(CORS → Auth → Refresh → Permissions)"]
+    C["Handlers<br/>(Validación de DTOs, adaptación HTTP → Dominio)"]
+    D["Core Services<br/>(Lógica de negocio pura: Auth, Profile, Registration, Session)"]
+    E["Ports<br/>(Interfaces definidas por el dominio)"]
+    F["Adapters/Repositories<br/>(Implementación concreta: GORM/DBManager, Redis)"]
+    G["PostgreSQL / Redis"]
+
+    A --> B --> C --> D --> E --> F --> G
 ```
 
 ---
