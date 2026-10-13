@@ -87,8 +87,8 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 	// Inicializar handlers
 	estadosHandler := estados.NewEstadosHandler(app.EstadoService)
 	permisosHandler := permisos.NewPermisosHandler(app.PermisoService)
-	authHandler := auth.NewAuthHandler(app.AuthService)
-	profileHandler := auth.NewProfileHandler(app.AuthService)
+	authHandler := auth.NewAuthHandler(app.AuthService, app.RegistrationService)      
+	profileHandler := auth.NewProfileHandler(app.ProfileService)                      
 	rolesHandler := roles.NewRolesHandler(app.RolService)
 	usuariosHandler := usuarios.NewUsuariosHandler(app.UsuarioService)
 

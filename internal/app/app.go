@@ -196,9 +196,6 @@ func (a *App) initializeServices() error {
 		a.RedisCache,
 		a.CookieSigner,
 		a.PasswordService,
-		usuarioRepo,
-		rolRepo,
-		estadoRepo,
 		a.Config,
 	)
 
