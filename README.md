@@ -93,7 +93,7 @@ COOKIE_SECRET=clave_secreta_para_firmar_cookies_32_chars
 # App
 ENV=Production
 PORT=8080
-CORS_ALLOWED_ORIGINS=https://mrciro.com,https://www.mrciro.com,https://api.mrciro.com,trycloudflare.com
+CORS_ALLOWED_ORIGINS=https://mi_dominio.com,https://www.mi_dominio.com,https://api.mi_dominio.com,trycloudflare.com
 ```
 
 ### 2. Construcción y Despliegue (Podman / Docker)
