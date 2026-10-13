@@ -48,12 +48,12 @@ func (a *RolesAdapter) CrearRol(ctx context.Context, rolData roles.RolData) (*ro
 		Descripcion: rolData.Descripcion,
 	}
 
-	// ✅ Usar a.db.Create en lugar de tx.Create
+	// Usar a.db.Create en lugar de tx.Create
 	if err := a.db.WithContext(ctx).Create(&rolDB).Error; err != nil {
 		return nil, a.handleCreateError(err, rolData.Nombre)
 	}
 
-	// ✅ El resto en transacción si es necesario
+	// El resto en transacción si es necesario
 	tx := a.db.WithContext(ctx).Begin()
 
 	// Asignar permisos al rol
@@ -179,7 +179,7 @@ func (a *RolesAdapter) ActualizarRol(ctx context.Context, rolData roles.RolDataU
 		return nil, a.handleQueryError(err, "verificando rol existente")
 	}
 
-	// ✅ Verificar nombre duplicado solo si se está actualizando el nombre
+	// Verificar nombre duplicado solo si se está actualizando el nombre
 	if rolData.Nombre != nil {
 		var rolConMismoNombre models.Rol
 		err = a.db.WithContext(ctx).Where("nombre_rol = ? AND id != ?", *rolData.Nombre, rolData.ID).First(&rolConMismoNombre).Error
@@ -198,7 +198,7 @@ func (a *RolesAdapter) ActualizarRol(ctx context.Context, rolData roles.RolDataU
 		}
 	}()
 
-	// ✅ Actualizar solo los campos proporcionados
+	// Actualizar solo los campos proporcionados
 	updates := make(map[string]interface{})
 	if rolData.Nombre != nil {
 		updates["nombre_rol"] = *rolData.Nombre
@@ -214,7 +214,7 @@ func (a *RolesAdapter) ActualizarRol(ctx context.Context, rolData roles.RolDataU
 		}
 	}
 
-	// ✅ Actualizar permisos solo si se proporcionaron
+	// Actualizar permisos solo si se proporcionaron
 	if rolData.Permisos != nil {
 		// Eliminar permisos actuales
 		if err := tx.Where("id_rol = ?", rolData.ID).Delete(&models.RolXPermiso{}).Error; err != nil {

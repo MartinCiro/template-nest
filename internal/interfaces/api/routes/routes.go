@@ -71,7 +71,7 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 	
 	// Inicializar middlewares
 	authMiddleware := middlewares.NewAuthMiddleware(app.JWTService)
-	refreshMiddleware := middlewares.NewRefreshMiddleware(app.AuthService)
+	refreshMiddleware := middlewares.NewRefreshMiddleware(app.SessionService)
 
 	// Configurar CookieSigner si está disponible
 	if app.CookieSigner != nil {
@@ -86,8 +86,8 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 
 	// Inicializar handlers
 	estadosHandler := estados.NewEstadosHandler(app.EstadoService)
-	permisosHandler := permisos.NewPermisosHandler(app.PermisoService)
-	authHandler := auth.NewAuthHandler(app.AuthService, app.RegistrationService)      
+	permisosHandler := permisos.NewPermisosHandler(app.PermisoService)  
+	authHandler := auth.NewAuthHandler(app.AuthService, app.RegistrationService, app.SessionService)
 	profileHandler := auth.NewProfileHandler(app.ProfileService)                      
 	rolesHandler := roles.NewRolesHandler(app.RolService)
 	usuariosHandler := usuarios.NewUsuariosHandler(app.UsuarioService)
@@ -108,7 +108,7 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 	// Crear un subrouter para rutas protegidas
 	protected := http.NewServeMux()
 
-	// ✅ RUTAS DE USUARIOS (con refresh middleware)
+	// RUTAS DE USUARIOS (con refresh middleware)
 	protected.Handle("GET /api/usuarios",
 		authMiddleware.RequireAuthAndPermission(permsMiddleware, middlewares.PermissionUsuariosListar)(
 			refreshMiddleware.Handler(
@@ -137,7 +137,7 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 			),
 		))
 
-	// ✅ RUTAS DE ESTADOS (con refresh middleware)
+	// RUTAS DE ESTADOS (con refresh middleware)
 	protected.Handle("GET /api/estados",
 		authMiddleware.RequireAuthAndPermission(permsMiddleware, middlewares.PermissionEstadosListar)(
 			refreshMiddleware.Handler(
@@ -173,7 +173,7 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 			),
 		))
 
-	// ✅ RUTAS DE PERMISOS (con refresh middleware)
+	// RUTAS DE PERMISOS (con refresh middleware)
 	protected.Handle("GET /api/permisos",
 		authMiddleware.RequireAuthAndPermission(permsMiddleware, middlewares.PermissionPermisosListar)(
 			refreshMiddleware.Handler(
@@ -209,7 +209,7 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 			),
 		))
 
-	// ✅ RUTAS DE ROLES (con refresh middleware)
+	// RUTAS DE ROLES (con refresh middleware)
 	protected.Handle("GET /api/roles",
 		authMiddleware.RequireAuthAndPermission(permsMiddleware, middlewares.PermissionRolesListar)(
 			refreshMiddleware.Handler(
@@ -252,7 +252,7 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 			),
 		))
 
-	// ✅ RUTAS DE AUTH PROTEGIDAS (con refresh middleware)
+	// RUTAS DE AUTH PROTEGIDAS (con refresh middleware)
 	protected.Handle("POST /api/auth/logout",
 		authMiddleware.RequireAuthAndPermission(permsMiddleware, middlewares.PermissionLoginLogout)(
 			refreshMiddleware.Handler(
@@ -267,14 +267,14 @@ func setupAllRoutes(mux *http.ServeMux, app *app.App) {
 			),
 		))
 
-	// ✅ APLICAR MIDDLEWARE DE AUTENTICACIÓN AL ROUTER PROTEGIDO
+	// APLICAR MIDDLEWARE DE AUTENTICACIÓN AL ROUTER PROTEGIDO
 	// El orden es importante: Auth primero, luego Refresh
 	mux.Handle("/", authMiddleware.Handler(protected))
 }
 
 // withGlobalMiddleware aplica middlewares globales
 func withGlobalMiddleware(handler http.Handler, cfg *config.Config) http.Handler {
-	// ✅ CORS: ahora pasamos la configuración
+	// CORS: ahora pasamos la configuración
 	handler = withCORS(handler, cfg)
 	// Logging
 	handler = withLogging(handler, cfg)

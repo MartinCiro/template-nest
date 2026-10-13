@@ -120,7 +120,7 @@ func (r *UsuarioRepository) CreateUser(ctx context.Context, usuario *auth.Usuari
 	documento := int(time.Now().UnixNano() / 1000000)
 	documentoStr := strconv.Itoa(documento)
 
-	// ✅ Usar mapa para evitar problemas de tipo
+	// Usar mapa para evitar problemas de tipo
 	userData := map[string]interface{}{
 		"documento":      documentoStr,
 		"nombres":        usuario.Username,

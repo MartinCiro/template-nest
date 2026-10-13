@@ -11,6 +11,7 @@ import (
 	"api_go/internal/core/usuarios"
 	"api_go/internal/core/profile"
 	"api_go/internal/core/registration"
+	"api_go/internal/core/session"
 	"api_go/internal/infrastructure/adapters"
 	"api_go/internal/infrastructure/cookies"
 	"api_go/internal/infrastructure/database"
@@ -48,6 +49,7 @@ type App struct {
 
 	ProfileService      *profile.ProfileService
 	RegistrationService *registration.RegistrationService
+	SessionService      *session.SessionService
 }
 
 func NewApp() *App {
@@ -76,7 +78,7 @@ func (a *App) Initialize(cfg *config.Config) error {
 		}
 	}
 
-	/* log.Println("✅ Todos los servicios inicializados correctamente") */
+	/* log.Println("Todos los servicios inicializados correctamente") */
 	return nil
 }
 
@@ -171,15 +173,15 @@ func (a *App) initializeServices() error {
 	permisoRepo := repositories.NewPermisoRepository(dbManager)
 	estadoRepo := repositories.NewEstadoRepository(dbManager)
 	
-	// ✅ INICIALIZAR ESTADOS ADAPTER Y SERVICE
+	// INICIALIZAR ESTADOS ADAPTER Y SERVICE
 	estadosAdapter := adapters.NewEstadosAdapter(a.DB, a.RedisCache)
 	a.EstadoService = estados.NewEstadoService(estadosAdapter)
 	
-	// ✅ INICIALIZAR PERMISOS ADAPTER Y SERVICE
+	// INICIALIZAR PERMISOS ADAPTER Y SERVICE
 	permisosAdapter := adapters.NewPermisosAdapter(a.DB, a.RedisCache)
 	a.PermisoService = permisos.NewPermisoService(permisosAdapter)
 	
-	// ✅ INICIALIZAR ROLES ADAPTER Y SERVICE
+	// INICIALIZAR ROLES ADAPTER Y SERVICE
 	rolesAdapter := adapters.NewRolesAdapter(a.DB, a.RedisCache)
 	a.RolService = roles.NewRolService(rolesAdapter)
 	
@@ -217,7 +219,9 @@ func (a *App) initializeServices() error {
 		a.Config.JWTExpireTime,
 	)
 
-	logger.Info("✅ Todos los servicios del core inicializados correctamente",
+	a.SessionService = session.NewSessionService(a.AuthService.GetRefreshService())
+
+	logger.Info("Todos los servicios del core inicializados correctamente",
 		"AuthService", a.AuthService != nil,
 		"EstadoService", a.EstadoService != nil,
 		"RolService", a.RolService != nil,
@@ -244,10 +248,10 @@ func (a *App) runMigrations() error {
 			logger.Error("Error migrando modelo", "model", fmt.Sprintf("%T", model), "error", err)
 			return err
 		}
-		//logger.Info("✅ Modelo migrado", "model", fmt.Sprintf("%T", model))
+		//logger.Info("Modelo migrado", "model", fmt.Sprintf("%T", model))
 	}
 
-	//logger.Info("✅ Todas las migraciones completadas")
+	//logger.Info("Todas las migraciones completadas")
 	return nil
 }
 

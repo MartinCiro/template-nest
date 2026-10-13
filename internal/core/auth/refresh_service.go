@@ -103,7 +103,7 @@ func (s *RefreshService) CheckAndRefresh(ctx context.Context, userID int, userna
 		result.Message = "Sesión refrescada automáticamente"
 		result.TTLSeconds = int64(s.sessionTTL.Seconds())
 
-		logger.Info("✅ Sesión refrescada exitosamente",
+		logger.Info("Sesión refrescada exitosamente",
 			"userID", userID,
 			"nuevo_ttl", s.sessionTTL)
 	} else {

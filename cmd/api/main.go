@@ -26,7 +26,6 @@ func main() {
 		logger.SetupDevelopment()
 	}
 
-	// ✅ CORRECCIÓN: Usar string directo en lugar de http.LocalAddrContextKey
 	logger.Info("iniciando aplicación",
 		"version", "1.0.0",
 		"environment", cfg.Env,
@@ -39,7 +38,7 @@ func main() {
 	}
 	defer application.Shutdown()
 
-	// ✅ VERIFICAR que la aplicación esté saludable antes de iniciar servidor
+	// VERIFICAR que la aplicación esté saludable antes de iniciar servidor
 	if err := application.HealthCheck(); err != nil {
 		logger.Fatal("health check falló antes de iniciar servidor", "error", err)
 	}
@@ -65,13 +64,13 @@ func main() {
 		}
 	}()
 
-	// ✅ HEALTH CHECK INMEDIATO - Verificar que el servidor responde
+	// HEALTH CHECK INMEDIATO - Verificar que el servidor responde
 	time.Sleep(1 * time.Second) // Dar tiempo a que el servidor arranque
 	if err := checkServerHealth(cfg.Port); err != nil {
 		logger.Fatal("servidor no responde a health checks", "error", err)
 	}
 
-	logger.Info("✅ Servidor iniciado y respondiendo correctamente")
+	logger.Info("Servidor iniciado y respondiendo correctamente")
 
 	// Esperar señal de interrupción o error del servidor
 	stop := make(chan os.Signal, 1)
@@ -91,11 +90,11 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		logger.Error("⚠️ Error durante shutdown", "error", err)
 	} else {
-		logger.Info("✅ Servidor cerrado correctamente")
+		logger.Info("Servidor cerrado correctamente")
 	}
 }
 
-// ✅ FUNCIÓN NUEVA: Verificar que el servidor responde
+// FUNCIÓN NUEVA: Verificar que el servidor responde
 func checkServerHealth(port string) error {
 	// Intentar conectarse al health check
 	resp, err := http.Get("http://localhost:" + port + "/")

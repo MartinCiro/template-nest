@@ -22,7 +22,7 @@ func NewPermisoRepository(dbManager *database.DBManager) *PermisoRepository {
 }
 
 func (r *PermisoRepository) FindByRolID(ctx context.Context, rolID int) ([]string, error) {
-	var permisos []models.Permiso // ✅ Usar el modelo existente
+	var permisos []models.Permiso // Usar el modelo existente
 
 	err := r.dbManager.GetDB().WithContext(ctx).
 		Model(&models.Permiso{}).
@@ -61,7 +61,7 @@ func (r *PermisoRepository) FindByID(ctx context.Context, id int) (*models.Permi
 		return nil, fmt.Errorf("error buscando permiso por ID: %v", err)
 	}
 
-	logger.Info("✅ Permiso encontrado", "ID", permiso.ID, "nombre", permiso.NombrePermiso)
+	logger.Info("Permiso encontrado", "ID", permiso.ID, "nombre", permiso.NombrePermiso)
 	return &permiso, nil
 }
 
@@ -69,7 +69,7 @@ func (r *PermisoRepository) FindByID(ctx context.Context, id int) (*models.Permi
 func (r *PermisoRepository) FindAll(ctx context.Context) ([]models.Permiso, error) {
 	logger.Info("🔍 Buscando todos los permisos")
 
-	var permisos []models.Permiso // ✅ Usar el modelo existente
+	var permisos []models.Permiso // Usar el modelo existente
 
 	err := r.dbManager.GetDB().WithContext(ctx).
 		Find(&permisos).Error
@@ -79,7 +79,7 @@ func (r *PermisoRepository) FindAll(ctx context.Context) ([]models.Permiso, erro
 		return nil, fmt.Errorf("error buscando todos los permisos: %v", err)
 	}
 
-	logger.Info("✅ Permisos encontrados", "count", len(permisos))
+	logger.Info("Permisos encontrados", "count", len(permisos))
 	return permisos, nil
 }
 
@@ -87,7 +87,7 @@ func (r *PermisoRepository) FindAll(ctx context.Context) ([]models.Permiso, erro
 func (r *PermisoRepository) FindByNombre(ctx context.Context, nombre string) ([]models.Permiso, error) {
 	logger.Info("🔍 Buscando permisos por nombre", "nombre", nombre)
 
-	var permisos []models.Permiso // ✅ Usar el modelo existente
+	var permisos []models.Permiso // Usar el modelo existente
 
 	err := r.dbManager.GetDB().WithContext(ctx).
 		Where("nombre_permiso LIKE ?", "%"+nombre+"%").
@@ -98,7 +98,7 @@ func (r *PermisoRepository) FindByNombre(ctx context.Context, nombre string) ([]
 		return nil, fmt.Errorf("error buscando permisos por nombre: %v", err)
 	}
 
-	logger.Info("✅ Permisos encontrados por nombre", "count", len(permisos))
+	logger.Info("Permisos encontrados por nombre", "count", len(permisos))
 	return permisos, nil
 }
 
@@ -114,7 +114,7 @@ func (r *PermisoRepository) Create(ctx context.Context, permiso *models.Permiso)
 		return fmt.Errorf("error creando permiso: %v", err)
 	}
 
-	logger.Info("✅ Permiso creado", "ID", permiso.ID, "nombre", permiso.NombrePermiso)
+	logger.Info("Permiso creado", "ID", permiso.ID, "nombre", permiso.NombrePermiso)
 	return nil
 }
 
@@ -135,7 +135,7 @@ func (r *PermisoRepository) AsignarPermisoARol(ctx context.Context, rolID int, p
 		return fmt.Errorf("error asignando permiso al rol: %v", err)
 	}
 
-	logger.Info("✅ Permiso asignado a rol", "rolID", rolID, "permisoID", permisoID)
+	logger.Info("Permiso asignado a rol", "rolID", rolID, "permisoID", permisoID)
 	return nil
 }
 
@@ -156,7 +156,7 @@ func (r *PermisoRepository) RemoverPermisoDeRol(ctx context.Context, rolID int, 
 		logger.Error("❌ Asignación no encontrada", "rolID", rolID, "permisoID", permisoID)
 		return fmt.Errorf("asignación no encontrada")
 	}
-	logger.Info("✅ Permiso removido del rol", "rolID", rolID, "permisoID", permisoID)
+	logger.Info("Permiso removido del rol", "rolID", rolID, "permisoID", permisoID)
 	return nil
 }
 
@@ -170,7 +170,7 @@ func (r *PermisoRepository) Update(ctx context.Context, permiso *models.Permiso)
 		return fmt.Errorf("error actualizando permiso: %v", err)
 	}
 
-	logger.Info("✅ Permiso actualizado", "ID", permiso.ID)
+	logger.Info("Permiso actualizado", "ID", permiso.ID)
 	return nil
 }
 
@@ -191,6 +191,6 @@ func (r *PermisoRepository) Delete(ctx context.Context, id int) error {
 		return fmt.Errorf("permiso no encontrado")
 	}
 
-	logger.Info("✅ Permiso eliminado", "ID", id)
+	logger.Info("Permiso eliminado", "ID", id)
 	return nil
 }

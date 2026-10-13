@@ -78,7 +78,7 @@ func (h *UsuariosHandler) ActualizarUsuario(w http.ResponseWriter, r *http.Reque
 	// Asignar el ID obtenido de la URL al documento
 	req.Documento = strconv.Itoa(id) // Convertir a string si Documento es string
 
-	// ✅ VALIDAR DESPUÉS de asignar el documento
+	// VALIDAR DESPUÉS de asignar el documento
 	if errors := common.ValidateRequest(req); errors != nil {
 		common.WriteValidationErrors(w, errors, 400)
 		return
@@ -100,7 +100,7 @@ func (h *UsuariosHandler) ActualizarUsuario(w http.ResponseWriter, r *http.Reque
 func (h *UsuariosHandler) EliminarUsuario(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	docu, err := strconv.Atoi(idStr)
-	if err != nil || docu <= 0 { // ✅ Validar que sea mayor a 0
+	if err != nil || docu <= 0 { // Validar que sea mayor a 0
 		common.WriteSimpleError(w, "ID inválido", 400)
 		return
 	}
@@ -134,7 +134,7 @@ func (h *UsuariosHandler) EliminarUsuario(w http.ResponseWriter, r *http.Request
 
 	req.ID = id
 
-	// ✅ VALIDAR DESPUÉS de asignar el ID
+	// VALIDAR DESPUÉS de asignar el ID
 	if errors := common.ValidateRequest(req); errors != nil {
 		common.WriteValidationErrors(w, errors, 400)
 		return

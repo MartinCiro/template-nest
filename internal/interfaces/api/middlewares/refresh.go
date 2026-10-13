@@ -6,18 +6,18 @@ import (
 	"net/http"
 	"strconv"
 
-	"api_go/internal/core/auth"
+	"api_go/internal/core/session"
 	"api_go/internal/infrastructure/cookies"
 	"api_go/pkg/logger"
 )
 
 type RefreshMiddleware struct {
-	authService *auth.AuthService
+	sessionService *session.SessionService
 }
 
-func NewRefreshMiddleware(authService *auth.AuthService) *RefreshMiddleware {
+func NewRefreshMiddleware(sessionService *session.SessionService) *RefreshMiddleware {
 	return &RefreshMiddleware{
-		authService: authService,
+		sessionService: sessionService,
 	}
 }
 
@@ -27,15 +27,15 @@ func (m *RefreshMiddleware) Handler(next http.Handler) http.Handler {
 		ctx := r.Context()
 
 		// Obtener cookie actual
-		cookie, err := r.Cookie("tk") // Tu nombre de cookie
+		cookie, err := r.Cookie("tk")
 		if err != nil {
 			// No hay cookie, continuar
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		// Usar el método que verifica directamente desde la cookie
-		refreshResult, err := m.authService.CheckAndRefreshSessionFromCookie(ctx, cookie.Value)
+		// Usar SessionService para verificar y refrescar
+		refreshResult, err := m.sessionService.CheckAndRefreshFromCookie(ctx, cookie.Value)
 		if err != nil {
 			logger.Debug("Error en refresh middleware",
 				"error", err,
@@ -50,14 +50,12 @@ func (m *RefreshMiddleware) Handler(next http.Handler) http.Handler {
 			logger.Info("🔄 Sesión refrescada automáticamente",
 				"path", r.URL.Path,
 				"nuevo_ttl", refreshResult.TTLSeconds)
-
-			// Setear nueva cookie
 			cookies.SetAuthCookie(w, refreshResult.NewCookie, refreshResult.NewExpiresAt)
 		}
 
 		// Actualizar último acceso si tenemos userID
 		if userID := m.getUserIDFromContext(ctx); userID > 0 {
-			m.authService.UpdateUserSessionAccess(ctx, userID)
+			_ = m.sessionService.UpdateSessionAccess(ctx, userID)
 		}
 
 		next.ServeHTTP(w, r)

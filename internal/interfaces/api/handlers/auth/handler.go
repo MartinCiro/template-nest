@@ -8,6 +8,7 @@ import (
 
 	"api_go/internal/core/auth"
 	"api_go/internal/core/registration"
+	"api_go/internal/core/session"
 	"api_go/internal/infrastructure/cookies"
 	"api_go/internal/interfaces/api/common"
 	"api_go/internal/interfaces/api/middlewares"
@@ -16,15 +17,18 @@ import (
 type AuthHandler struct {
 	authService         *auth.AuthService
 	registrationService *registration.RegistrationService
+	sessionService      *session.SessionService
 }
 
 func NewAuthHandler(
 	authService *auth.AuthService,
 	registrationService *registration.RegistrationService,
+	sessionService *session.SessionService,
 ) *AuthHandler {
 	return &AuthHandler{
 		authService:         authService,
 		registrationService: registrationService,
+		sessionService:      sessionService,
 	}
 }
 
@@ -96,11 +100,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	if userIDStr, ok := r.Context().Value(middlewares.UserIDKey).(string); ok {
+	ctx := r.Context()
+	if userIDStr, ok := ctx.Value(middlewares.UserIDKey).(string); ok {
 		if userID, err := strconv.Atoi(userIDStr); err == nil {
-			_ = h.authService.Logout(r.Context(), userID)
+			// Ya no pasamos sessionService, AuthService lo maneja internamente
+			h.authService.Logout(ctx, userID)
 		}
 	}
 	cookies.ClearAuthCookie(w)
-	common.WriteJSONResponse(w, common.NewSuccessResponse("Sesión cerrada exitosamente"), 200)
+	successResponse := common.NewSuccessResponse("Sesión cerrada exitosamente")
+	common.WriteJSONResponse(w, successResponse, 200)
 }

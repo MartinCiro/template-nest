@@ -66,7 +66,7 @@ func (h *PermisosHandler) CrearPermiso(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ✅ VALIDAR EL DTO ANTES de procesar
+	// VALIDAR EL DTO ANTES de procesar
 	if errors := common.ValidateRequest(req); errors != nil {
 		common.WriteValidationErrors(w, errors, 400)
 		return
@@ -100,7 +100,7 @@ func (h *PermisosHandler) ActualizarPermiso(w http.ResponseWriter, r *http.Reque
 
 	req.ID = id
 
-	// ✅ VALIDAR DESPUÉS de asignar el ID
+	// VALIDAR DESPUÉS de asignar el ID
 	if errors := common.ValidateRequest(req); errors != nil {
 		common.WriteValidationErrors(w, errors, 400)
 		return
@@ -122,7 +122,7 @@ func (h *PermisosHandler) ActualizarPermiso(w http.ResponseWriter, r *http.Reque
 func (h *PermisosHandler) EliminarPermiso(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
-	if err != nil || id <= 0 { // ✅ Validar que sea mayor a 0
+	if err != nil || id <= 0 { // Validar que sea mayor a 0
 		common.WriteSimpleError(w, "ID inválido", 400)
 		return
 	}

@@ -17,7 +17,7 @@ func InitializeCache(cfg *config.Config) *Cache {
 	// Verificar conexión
 	ctx := context.Background()
 	if err := cache.HealthCheck(ctx); err != nil {
-		// ✅ MEJORADO: Log con logger estructurado
+		// MEJORADO: Log con logger estructurado
 		logger.Warn("no se pudo conectar a Redis",
 			"error", err,
 			"redis_url", maskPassword(cfg.RedisURL)) // ← Oculta password en logs

@@ -45,7 +45,7 @@ func (r *EstadoRepository) FindEstadoIDByName(ctx context.Context, nombre string
 		return 0, fmt.Errorf("error buscando estado por nombre: %v", err)
 	}
 
-	logger.Info("✅ Estado encontrado", "ID", estado.ID, "nombre", estado.NombreEstado)
+	logger.Info("Estado encontrado", "ID", estado.ID, "nombre", estado.NombreEstado)
 	return estado.ID, nil
 }
 
@@ -68,7 +68,7 @@ func (r *EstadoRepository) FindByExactName(ctx context.Context, nombre string) (
 		return nil, fmt.Errorf("error buscando estado por nombre exacto: %v", err)
 	}
 
-	logger.Debug("✅ Estado encontrado", "nombre", nombre, "id", estado.ID)
+	logger.Debug("Estado encontrado", "nombre", nombre, "id", estado.ID)
 	return &estado, nil
 }
 
@@ -84,7 +84,7 @@ func (r *EstadoRepository) FindOrCreateActive(ctx context.Context) (int, error) 
 
 	// Si existe, retornamos el ID
 	if estado != nil {
-		logger.Info("✅ Estado activo encontrado", "id", estado.ID)
+		logger.Info("Estado activo encontrado", "id", estado.ID)
 		return estado.ID, nil
 	}
 
@@ -101,7 +101,7 @@ func (r *EstadoRepository) FindOrCreateActive(ctx context.Context) (int, error) 
 		return 0, fmt.Errorf("error creando estado activo: %v", err)
 	}
 
-	logger.Info("✅ Estado activo creado exitosamente", "id", nuevoEstado.ID)
+	logger.Info("Estado activo creado exitosamente", "id", nuevoEstado.ID)
 	return nuevoEstado.ID, nil
 }
 
@@ -123,14 +123,14 @@ func (r *EstadoRepository) FindByID(ctx context.Context, id int) (*models.Estado
 		return nil, fmt.Errorf("error buscando estado por ID: %v", err)
 	}
 
-	logger.Info("✅ Estado encontrado", "ID", estado.ID, "nombre", estado.NombreEstado)
+	logger.Info("Estado encontrado", "ID", estado.ID, "nombre", estado.NombreEstado)
 	return &estado, nil
 }
 
 // FindAll busca todos los estados
 func (r *EstadoRepository) FindAll(ctx context.Context) ([]models.Estado, error) {
 	logger.Info("🔍 Buscando todos los estados")
-	var estados []models.Estado // ✅ Usar el modelo existente
+	var estados []models.Estado // Usar el modelo existente
 
 	err := r.dbManager.GetDB().WithContext(ctx).
 		Find(&estados).Error
@@ -140,7 +140,7 @@ func (r *EstadoRepository) FindAll(ctx context.Context) ([]models.Estado, error)
 		return nil, fmt.Errorf("error buscando todos los estados: %v", err)
 	}
 
-	logger.Info("✅ Estados encontrados", "count", len(estados))
+	logger.Info("Estados encontrados", "count", len(estados))
 	return estados, nil
 }
 
@@ -155,7 +155,7 @@ func (r *EstadoRepository) Create(ctx context.Context, estado *models.Estado) er
 		logger.Error("❌ Error creando estado", "error", err)
 		return fmt.Errorf("error creando estado: %v", err)
 	}
-	logger.Info("✅ Estado creado", "ID", estado.ID, "nombre", estado.NombreEstado)
+	logger.Info("Estado creado", "ID", estado.ID, "nombre", estado.NombreEstado)
 	return nil
 }
 
@@ -170,7 +170,7 @@ func (r *EstadoRepository) Update(ctx context.Context, estado *models.Estado) er
 		return fmt.Errorf("error actualizando estado: %v", err)
 	}
 
-	logger.Info("✅ Estado actualizado", "ID", estado.ID)
+	logger.Info("Estado actualizado", "ID", estado.ID)
 	return nil
 }
 
@@ -191,6 +191,6 @@ func (r *EstadoRepository) Delete(ctx context.Context, id int) error {
 		return fmt.Errorf("estado no encontrado")
 	}
 
-	logger.Info("✅ Estado eliminado", "ID", id)
+	logger.Info("Estado eliminado", "ID", id)
 	return nil
 }

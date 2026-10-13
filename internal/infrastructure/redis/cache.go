@@ -62,7 +62,7 @@ func (c *Cache) Set(ctx context.Context, key string, value interface{}, ttl ...t
 
 	var finalValue interface{} = value
 
-	// ✅ DETECTAR si ya es un JSON string para no serializar dos veces
+	// DETECTAR si ya es un JSON string para no serializar dos veces
 	switch v := value.(type) {
 	case string:
 		// Intentar detectar si es JSON válido

@@ -60,7 +60,7 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("✅ JSON válido, procediendo con login...\n")
+	fmt.Printf("JSON válido, procediendo con login...\n")
 
 	ctx := r.Context()
 	credentials := login.LoginCredentials{

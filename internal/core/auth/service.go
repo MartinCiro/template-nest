@@ -157,11 +157,27 @@ func (s *AuthService) ValidateCookie(cookieValue string) (*User, error) {
 	}, nil
 }
 
-// Logout cierra la sesión
+// Logout cierra la sesión usando el refreshService interno
 func (s *AuthService) Logout(ctx context.Context, userID int) error {
-	_ = s.DeleteUserSession(ctx, userID)
+	// 1. Eliminar sesión usando el refreshService que YA tenemos internamente
+	err := s.refreshService.DeleteSession(ctx, userID)
+	if err != nil {
+		logger.Error("❌ Error eliminando sesión", "userID", userID, "error", err)
+	} else {
+		logger.Info("Sesión eliminada", "userID", userID)
+	}
+
+	// 2. Limpiar cache de usuario
 	userCacheKey := fmt.Sprintf("user:%d", userID)
-	_ = s.redisService.Delete(ctx, userCacheKey)
+	if s.redisService != nil {
+		err := s.redisService.Delete(ctx, userCacheKey)
+		if err != nil {
+			logger.Error("Error clearing user cache", "userID", userID, "error", err)
+		} else {
+			logger.Info("Cache de usuario eliminado", "userID", userID)
+		}
+	}
+
 	return nil
 }
 
@@ -191,6 +207,11 @@ func (s *AuthService) hasPermission(permisos []string, permission string) bool {
 		}
 	}
 	return false
+}
+
+// GetRefreshService expone el RefreshService para SessionService
+func (s *AuthService) GetRefreshService() *RefreshService {
+	return s.refreshService
 }
 
 // Evitar import no usado

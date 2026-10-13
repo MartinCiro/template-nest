@@ -28,12 +28,12 @@ func NewPermisosAdapter(db *gorm.DB, redisService *redis.Cache) *PermisosAdapter
 
 // CrearPermisos implementa el puerto PermisosPort
 func (a *PermisosAdapter) CrearPermisos(ctx context.Context, permisoData permisos.PermisoData) (*permisos.Permiso, error) {
-	// ✅ VALIDAR QUE LA CONEXIÓN A BD NO SEA NIL
+	// VALIDAR QUE LA CONEXIÓN A BD NO SEA NIL
 	if a.db == nil {
 		return nil, fmt.Errorf("error de configuración: conexión a base de datos no disponible")
 	}
 
-	// ✅ VALIDAR QUE REDIS NO SEA NIL
+	// VALIDAR QUE REDIS NO SEA NIL
 	if a.redisService == nil {
 		return nil, fmt.Errorf("error de configuración: servicio de cache no disponible")
 	}

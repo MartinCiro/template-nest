@@ -65,7 +65,7 @@ func (a *AuthAdapter) RetrieveUser(ctx context.Context, authData auth.AuthData) 
 			logger.Warn("⚠️ Error obteniendo rol (continuando)", "error", err)
 		} else if rol != nil {
 			usuario.RolNombre = rol.NombreRol
-			logger.Info("✅ Rol del usuario", "rol", rol.NombreRol)
+			logger.Info("Rol del usuario", "rol", rol.NombreRol)
 		}
 	}
 
@@ -89,7 +89,7 @@ func (a *AuthAdapter) RetrieveUserByID(ctx context.Context, userID int) (*auth.U
 			usuario.Permisos = []string{}
 		} else {
 			usuario.Permisos = permisos
-			fmt.Printf("✅ Permisos asignados: %d permisos\n", len(permisos))
+			fmt.Printf("Permisos asignados: %d permisos\n", len(permisos))
 		}
 	}
 
@@ -99,7 +99,7 @@ func (a *AuthAdapter) RetrieveUserByID(ctx context.Context, userID int) (*auth.U
 			logger.Warn("⚠️ Error obteniendo rol (continuando)", "error", err)
 		} else if rol != nil {
 			usuario.RolNombre = rol.NombreRol
-			logger.Info("✅ Rol del usuario", "rol", rol.NombreRol)
+			logger.Info("Rol del usuario", "rol", rol.NombreRol)
 		}
 	}
 

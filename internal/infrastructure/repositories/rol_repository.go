@@ -112,7 +112,7 @@ func (r *RolRepository) FindByExactName(ctx context.Context, nombre string) (*mo
 		return nil, fmt.Errorf("error buscando rol por nombre exacto: %v", err)
 	}
 
-	logger.Debug("✅ Rol encontrado", "nombre", nombre, "id", rol.ID)
+	logger.Debug("Rol encontrado", "nombre", nombre, "id", rol.ID)
 	return &rol, nil
 }
 
@@ -128,7 +128,7 @@ func (r *RolRepository) FindOrCreateGuest(ctx context.Context) (int, error) {
 
 	// Si existe, retornamos el ID
 	if rol != nil {
-		logger.Info("✅ Rol invitado encontrado", "id", rol.ID)
+		logger.Info("Rol invitado encontrado", "id", rol.ID)
 		return rol.ID, nil
 	}
 
@@ -146,7 +146,7 @@ func (r *RolRepository) FindOrCreateGuest(ctx context.Context) (int, error) {
 		return 0, fmt.Errorf("error creando rol invitado: %v", err)
 	}
 
-	logger.Info("✅ Rol invitado creado exitosamente", "id", nuevoRol.ID)
+	logger.Info("Rol invitado creado exitosamente", "id", nuevoRol.ID)
 	return nuevoRol.ID, nil
 }
 

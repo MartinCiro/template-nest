@@ -78,7 +78,7 @@ func (h *RolesHandler) CrearRol(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	rolData := rolesDTOs.ToRolData(req) // ✅ Usar adapter
+	rolData := rolesDTOs.ToRolData(req) // Usar adapter
 
 	rol, err := h.rolService.CrearRol(ctx, rolData)
 	if err != nil {
@@ -101,7 +101,7 @@ func (h *RolesHandler) ActualizarRol(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req rolesDTOs.UpdateRolRequest // ✅ Usar DTO definido
+	var req rolesDTOs.UpdateRolRequest // Usar DTO definido
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Error("❌ Error decodificando solicitud", "error", err)
 		response := common.NewErrorResponse(400, "Solicitud inválida")

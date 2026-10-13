@@ -32,7 +32,7 @@ func (pm *PermissionsMiddleware) Handler(requiredPermissions []string) func(http
 						"path", r.URL.Path,
 						"method", r.Method,
 						"next_is_nil", next == nil,
-						"stack", debug.Stack()) // ✅ AGREGAR STACK TRACE
+						"stack", debug.Stack()) // AGREGAR STACK TRACE
 					response := common.NewErrorResponse(500, "Error interno del servidor")
 					common.WriteJSONResponse(w, response, 500)
 				}

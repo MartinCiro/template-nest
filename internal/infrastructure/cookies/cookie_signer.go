@@ -100,7 +100,7 @@ func SetAuthCookie(w http.ResponseWriter, cookieValue string, expiresAt time.Tim
 		Secure:   true, // Solo HTTPS en producción
 		SameSite: http.SameSiteStrictMode,
 	})
-	fmt.Printf("✅ COOKIE SET SUCCESSFULLY\n")
+	fmt.Printf("COOKIE SET SUCCESSFULLY\n")
 }
 
 // ClearAuthCookie elimina la cookie de autenticación
