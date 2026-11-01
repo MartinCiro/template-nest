@@ -18,25 +18,72 @@ type Cache struct {
 }
 
 func NewCache(config *config.Config) *Cache {
-	// Parsear la URL de Redis (puedes mejorar esto según tus necesidades)
-	// Asumiendo que RedisURL es algo como "redis://localhost:6379"
-	opts, err := redis.ParseURL(config.RedisURL)
-	if err != nil {
-		// Fallback a configuración por defecto si hay error
-		opts = &redis.Options{
-			Addr:     "localhost:6379",
-			Password: "",
+	ttl := time.Duration(config.RedisTTL) * time.Second
+	var finalClient *redis.Client
+
+	// Función auxiliar para probar una conexión rápidamente (timeout de 1 segundo)
+	tryConnect := func(addr string) *redis.Client {
+		opts := &redis.Options{
+			Addr:     addr,
+			Password: config.RedisPassword,
 			DB:       0,
+		}
+		client := redis.NewClient(opts)
+		
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+		
+		// Si el Ping responde sin error, la conexión es válida
+		if err := client.Ping(ctx).Err(); err == nil {
+			return client 
+		}
+		
+		// Si falla, cerramos la conexión para no dejar sockets huérfanos
+		client.Close() 
+		return nil
+	}
+
+	// 1. Intentar con la URL configurada explícitamente (si existe y es válida)
+	if config.RedisURL != "" {
+		if opts, err := redis.ParseURL(config.RedisURL); err == nil {
+			client := redis.NewClient(opts)
+			ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+			if client.Ping(ctx).Err() == nil {
+				cancel()
+				finalClient = client // ¡Funciona!
+			} else {
+				cancel()
+				client.Close()
+			}
 		}
 	}
 
-	client := redis.NewClient(opts)
+	// 2. FALLBACK 1: Intentar conexión local (ideal para desarrollo fuera de Docker)
+	if finalClient == nil {
+		if client := tryConnect("localhost:6379"); client != nil {
+			finalClient = client
+		}
+	}
 
-	// Usar RedisTTL de la configuración (en segundos)
-	ttl := time.Duration(config.RedisTTL) * time.Second
+	// 3. FALLBACK 2: Entorno Docker (nombre del servicio 'redis')
+	if finalClient == nil {
+		if client := tryConnect("redis:6379"); client != nil {
+			finalClient = client
+		}
+	}
+
+	// 4. Si TODO falla, devolvemos el cliente de Docker de todos modos.
+	// (El HealthCheck posterior en app.go se encargará de loggear que Redis no está disponible)
+	if finalClient == nil {
+		finalClient = redis.NewClient(&redis.Options{
+			Addr:     "redis:6379",
+			Password: config.RedisPassword,
+			DB:       0,
+		})
+	}
 
 	return &Cache{
-		client: client,
+		client: finalClient,
 		ttl:    ttl,
 		config: config,
 	}
@@ -331,3 +378,4 @@ func (c *Cache) Close() error {
 	}
 	return nil
 }
+
